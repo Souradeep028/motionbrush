@@ -26,19 +26,18 @@
 <body>
     <div class="container">
         <canvas style="height: 89vh" id="canvas"></canvas>
-        <button onclick="window.location.reload()">Clear</button>
-        <a id="download" download="image.png"><button type="button" onClick="download()">Download</button></a>
+        <div class="btn-container">
+            <button onclick="window.location.reload()">Clear</button>
+            <a id="link"><button type="button">Download</button></a>
+        </div>
     </div>
 
     <script src="./script.js"></script>
     <script>
-        function download() {
-            var download = document.getElementById("download");
-            var image = document.getElementById("canvas").toDataURL("image/png")
-                .replace("image/png", "image/octet-stream");
-            download.setAttribute("href", image);
-
-        }
+        var link = document.getElementById('link');
+        link.setAttribute('download', 'myArt.png');
+        link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+        link.click();
     </script>
 </body>
 

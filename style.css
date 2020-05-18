@@ -173,3 +173,8 @@ button{
     width: 12.8rem;
     font-size: 20px;
 }
+
+.btn-container{
+    margin: 0 auto;
+    
+}
