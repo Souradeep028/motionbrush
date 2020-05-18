@@ -167,7 +167,7 @@ canvas {
     min-height: 102vh;
 }
 
-button{
+.button{
     background: yellow;
     height: 2rem;
     width: 12.8rem;

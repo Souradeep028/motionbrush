@@ -27,16 +27,22 @@
     <div class="container">
         <canvas style="height: 89vh" id="canvas"></canvas>
         <div class="btn-container">
-            <button onclick="window.location.reload()">Clear</button>
-            <a id="link"><button type="button">Download</button></a>
+            <button class="button" onclick="window.location.reload()">Clear</button>
+            <!-- <a href="#" class="button" id="btn-download">Download</a> -->
+            <button class="button" id="button">Download</button>
+            <!-- <a id="link"><button type="button">Download</button></a> -->
         </div>
     </div>
 
     <script src="./script.js"></script>
+    <script src="http://cdn.jsdelivr.net/g/filesaver.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        var link = document.getElementById('link');
-        link.setAttribute('download', 'myArt.png');
-        link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+        $('#button').on("click", function () {
+            canvas.toBlob(function (blob) {
+                saveAs(blob, 'output.png');
+            }, 'image/png');
+        })
     </script>
 </body>
 
