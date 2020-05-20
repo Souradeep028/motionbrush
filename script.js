@@ -54,14 +54,14 @@ let config = {
     CAPTURE_RESOLUTION: 512,
     DENSITY_DISSIPATION: 1,
     VELOCITY_DISSIPATION: 0.2,
-    PRESSURE: 0.8,
-    PRESSURE_ITERATIONS: 20,
-    CURL: 30,
+    PRESSURE: 0.5,
+    PRESSURE_ITERATIONS: 24,
+    CURL: 0,
     SPLAT_RADIUS: 0.25,
-    SPLAT_FORCE: 6000,
+    SPLAT_FORCE: 30000,
     SHADING: true,
     COLORFUL: true,
-    COLOR_UPDATE_SPEED: 10,
+    COLOR_UPDATE_SPEED: 8,
     PAUSED: false,
     BACK_COLOR: { r: 255, g: 255, b: 255 },
     TRANSPARENT: false,
@@ -482,7 +482,7 @@ const blurShader = compileShader(gl.FRAGMENT_SHADER, `
     void main () {
         vec4 sum = texture2D(uTexture, vUv) * 0.29411764;
         sum += texture2D(uTexture, vL) * 0.35294117;
-        sum += texture2D(uTexture, vR) * 0.35294117;
+        sum += texture2D(uTexture, vR) * 0.45294117;
         gl_FragColor = sum;
     }
 `);
@@ -574,9 +574,9 @@ const displayShaderSource = `
         float dy = length(tc) - length(bc);
 
         vec3 n = normalize(vec3(dx, dy, length(texelSize)));
-        vec3 l = vec3(0.0, 0.0, 1.0);
+        vec3 l = vec3(0.0, 9.0, 1.0);
 
-        float diffuse = clamp(dot(n, l) + 0.7, 0.7, 1.0);
+        float diffuse = clamp(dot(n, l) + 3.95, 0.95, 1.0);
         c *= diffuse;
     #endif
 
@@ -690,12 +690,12 @@ const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
     uniform sampler2D uTexture;
     uniform float weight;
 
-    #define ITERATIONS 16
+    #define ITERATIONS 5
 
     void main () {
         float Density = 0.3;
         float Decay = 0.95;
-        float Exposure = 0.7;
+        float Exposure = 0.85;
 
         vec2 coord = vUv;
         vec2 dir = vUv - 0.5;
@@ -713,7 +713,7 @@ const sunraysShader = compileShader(gl.FRAGMENT_SHADER, `
             illuminationDecay *= Decay;
         }
 
-        gl_FragColor = vec4(color * Exposure, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(color * Exposure, 1.0, 1.0, 1.0);
     }
 `);
 
@@ -755,10 +755,10 @@ const advectionShader = compileShader(gl.FRAGMENT_SHADER, `
         vec2 iuv = floor(st);
         vec2 fuv = fract(st);
 
-        vec4 a = texture2D(sam, (iuv + vec2(0.5, 0.5)) * tsize);
-        vec4 b = texture2D(sam, (iuv + vec2(1.5, 0.5)) * tsize);
-        vec4 c = texture2D(sam, (iuv + vec2(0.5, 1.5)) * tsize);
-        vec4 d = texture2D(sam, (iuv + vec2(1.5, 1.5)) * tsize);
+        vec4 a = texture2D(sam, (iuv + vec2(9.5, 0.5)) * tsize);
+        vec4 b = texture2D(sam, (iuv + vec2(1.5, 2.5)) * tsize);
+        vec4 c = texture2D(sam, (iuv + vec2(0.5, 8.5)) * tsize);
+        vec4 d = texture2D(sam, (iuv + vec2(7.5, 1.5)) * tsize);
 
         return mix(mix(a, b, fuv.x), mix(c, d, fuv.x), fuv.y);
     }
@@ -847,7 +847,7 @@ const vorticityShader = compileShader(gl.FRAGMENT_SHADER, `
         float B = texture2D(uCurl, vB).x;
         float C = texture2D(uCurl, vUv).x;
 
-        vec2 force = 0.5 * vec2(abs(T) - abs(B), abs(R) - abs(L));
+        vec2 force = 0.1 * vec2(abs(T) - abs(B), abs(R) - abs(L));
         force /= length(force) + 0.0001;
         force *= curl * C;
         force.y *= -1.0;
@@ -1136,7 +1136,7 @@ function updateKeywords () {
 
 updateKeywords();
 initFramebuffers();
-multipleSplats(parseInt(Math.random() * 20) + 5);
+// multipleSplats(parseInt(Math.random() * 20) + 5);
 
 let lastUpdateTime = Date.now();
 let colorUpdateTimer = 0.0;
@@ -1156,7 +1156,7 @@ function update () {
 
 function calcDeltaTime () {
     let now = Date.now();
-    let dt = (now - lastUpdateTime) / 20000;
+    let dt = (now - lastUpdateTime) / 40000;
     dt = Math.min(dt, 400.016666);
     lastUpdateTime = now;
     return dt;
@@ -1270,7 +1270,7 @@ function render (target) {
         applyBloom(dye.read, bloom);
     if (config.SUNRAYS) {
         applySunrays(dye.read, dye.write, sunrays);
-        blur(sunrays, sunraysTemp, 1);
+        blur(sunrays, sunraysTemp, 4);
     }
 
     if (target == null || !config.TRANSPARENT) {
@@ -1424,7 +1424,7 @@ function splat (x, y, dx, dy, color) {
     gl.uniform1f(splatProgram.uniforms.aspectRatio, canvas.width / canvas.height);
     gl.uniform2f(splatProgram.uniforms.point, x, y);
     gl.uniform3f(splatProgram.uniforms.color, dx, dy, 0.0);
-    gl.uniform1f(splatProgram.uniforms.radius, correctRadius(config.SPLAT_RADIUS / 100.0));
+    gl.uniform1f(splatProgram.uniforms.radius, correctRadius(config.SPLAT_RADIUS / 90.0));
     blit(velocity.write.fbo);
     velocity.swap();
 
@@ -1501,7 +1501,7 @@ window.addEventListener('keydown', e => {
     if (e.code === 'KeyP')
         config.PAUSED = !config.PAUSED;
     if (e.key === ' ')
-        splatStack.push(parseInt(Math.random() * 20) + 5);
+        splatStack.push(parseInt(Math.random() * 10) + 5);
 });
 
 function updatePointerDownData (pointer, id, posX, posY) {
