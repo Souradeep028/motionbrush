@@ -1220,7 +1220,7 @@ function step (dt) {
     gl.uniform1i(divergenceProgram.uniforms.uVelocity, velocity.read.attach(0));
     blit(divergence.fbo);
 
-    clearProgram.bind();
+    // clearProgram.bind();
     gl.uniform1i(clearProgram.uniforms.uTexture, pressure.read.attach(0));
     gl.uniform1f(clearProgram.uniforms.value, config.PRESSURE);
     blit(pressure.write.fbo);
