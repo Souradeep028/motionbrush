@@ -173,16 +173,13 @@ canvas {
     height: 2rem;
     width: 12.9rem;
     font-size: 20px;
-    position: relative;
 }
 
 .btn-container{
     /* margin: 0 auto; */
-    height: 80px;
+    height: 40px;
     display: flex;
     justify-content: center; 
     align-items: center;
-    position: absolute;
     width: 100%;
-    bottom: 0.8rem;
 }
