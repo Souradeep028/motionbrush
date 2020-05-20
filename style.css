@@ -16,7 +16,8 @@ body {
     margin: 0;
     position: fixed;
     width: 100%;
-    MIN-height: 100%;
+    min-height: 100vh;
+    background: white;
 }
 
 canvas {
@@ -177,7 +178,7 @@ canvas {
 
 .btn-container{
     /* margin: 0 auto; */
-    height: 40px;
+    height: 80px;
     display: flex;
     justify-content: center; 
     align-items: center;
